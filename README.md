@@ -2,7 +2,7 @@
 Show an example to upload a file to a case with a REST API
 
 
- <img src="screenshot_foodtruck.jpg" />
+ <img src="screenshoot_testupload.jpg" />
  
 This page show you how to implement a File Upload in your Custom page.
 
