@@ -1,0 +1,168 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Test Upload</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="pageResource?page=custompage_testupload&location=style/animate.css" />
+    <link rel="stylesheet" href="pageResource?page=custompage_testupload&location=style/bootstrap.min.css">
+	<link rel="stylesheet" href="pageResource?page=custompage_testupload&location=style/main.css">
+	<link rel="stylesheet" href="pageResource?page=custompage_testupload&location=style/style.css">
+
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="https://www.google.com/uds/?file=visualization&amp;v=1&amp;hl=fr&amp;packages=corechart&amp;async=2"></script>
+	<link type="text/css" href="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/ui+fr.css" rel="stylesheet">
+	<script type="text/javascript" src="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/format+fr,default+fr,ui+fr,corechart+fr.I.js"></script>
+	<link href="https://ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css" rel="stylesheet" type="text/css">
+
+
+</head>
+<body ng-app="uploadmonitor">
+
+<h1><center>Upload test <img src="pageResource?page=custompage_testupload&location=img/testupload.jpg" width="150" heigth="150" /></center></h1>
+
+<div class="container" id="accordion">
+
+
+	<div class="col-lg-12">
+		<div  class="well">
+This page show you how to implement a File Upload in your Custom page.<br>
+Define a process with a Document variable, and create a case in this process. So, you need to have a the <span class="label label-info">case id</span> and the <span class="label label-info">Document Name</span>. <br>
+<span class="label label-success">upload : </span> Then, first upload a new file on the server using ngUpload. The BonitaEngine will return you a temporary file name. <br>
+<span class="label label-success">Assign :</span> The file name is give in the Assign part. Here the tips : firs call, a POST has to be done. <br>
+After, to update the content, a PUT has to be done, but with the documentId (which is an internal information), so a first call to get this documentId is necessary.
+	</div>
+	
+	<div class="bs-component"  ng-controller="UploadControler as uploadctrl">
+	
+		<legend class="text-primary"><span class="glyphicon glyphicon-th"></span>Upload a new content</legend>
+		<table>
+		<tr>
+			<td>
+			<form action="/bonita/API/formFileUpload" ng-upload="uploadctrl.uploadComplete(content)">
+				<div class="input-group file-upload">
+					<!--<input type="text" ng-focus="ctrl.preventFocus($event)" placeholder="{{properties.placeholder | uiTranslate}}" value="{{ctrl.filename}}" class="form-control">
+
+					<button type="button" ng-if="ctrl.filemodel" ng-click="ctrl.clear()" class="file-upload-clear">
+						<i class="glyphicon glyphicon-remove-circle"></i>
+						<span class="hide" translate>Close</span>
+					</button> -->
+					<span class="input-group-btn">
+						<span class="btn" ng-class="btn-default">
+							<input class="file-upload-input"
+								   name="uploader" type="file"
+								   ng-model="uploadctrl.localfile" />
+							<i class="glyphicon" ng-class="{'glyphicon-cloud-upload':$isUploading, 'glyphicon-paperclip':!$isUploading}"></i>
+						</span>
+					</span>
+				</div>
+			</form>
+			</td>
+		</tr><tr>
+			<td>
+				<button class="btn btn-success" ng-click="uploadctrl.Upload()">Upload</button>
+				
+				</td><td>{{uploadctrl.uploadstatus}}</td>
+		</tr><tr>
+			<td>CaseId</td><td><input type="text" ng-model="uploadctrl.caseid" title="Case id of the process you have to create before"></td>
+		</tr><tr>
+			<td>Document Name</td><td><input type="text" ng-model="uploadctrl.docname"  size="80" title="This is the name of the document in the process"> </td>
+		</tr><tr>
+			<td>File Name</td><td><input type="text" ng-model="uploadctrl.filename"  size="80" title="The file name is only an information on the file for the user"></td>
+		</tr><tr>
+			<td>Content Type</td><td><input type="text" ng-model="uploadctrl.contentType"  size="80" title="Content type - in fact, BonitaEngine does not save it"></td>
+		</tr><tr>
+		</tr><tr>
+			<td>Server temporary Name</td><td><input type="text" ng-model="uploadctrl.temporaryname"  size="80" title="After the upload, the BonitaEngine give you back this file name. This is the content of the file"> </td>
+		</tr><tr>
+			<td>  <button class="btn btn-success" ng-click="uploadctrl.Assign()">Assign</button><br>
+				<span class="label label-default">Url: [POST]/bonita/API/bpm/caseDocument </span>
+				<br> 
+				or
+				<br>
+				<span class="label label-default">Url: [GET]/bonita/API/bpm/caseDocument?p=0&c=10&f=name={{uploadctrl.docname}}&f=caseId={{uploadctrl.caseid}} </span><br>
+				<span class="label label-default">Url: [PUT]/bonita/API/bpm/caseDocument/<documentId></span>
+
+				</td><td>{{uploadctrl.assignstatus}}</td>
+		</tr>
+		</table>
+			
+		<legend class="text-primary"><span class="glyphicon glyphicon-th"></span>Get the Document information</legend>
+		
+		
+		<table>
+		<tr>
+			<td>CaseId</td><td><input type="text" ng-model="uploadctrl.infoCaseId" title="Case id of the process you have to create before. All documents with a content assigned to this caseId will be displayed"></td>
+		</tr><tr>
+			<td>
+				<button class="btn btn-info" ng-click="uploadctrl.getInfo()">Get Document information</button><br>
+				<span class="label label-default">Url: [GET]/bonita/API/bpm/caseDocument?p=0&c=10&f=caseId={{uploadctrl.infoCaseId}}</span>
+			</td><td>{{uploadctrl.infoDoc}}</td>
+		</tr><tr><td><p></td></tr>
+			
+		</tr><tr>
+			<td colspan="2">
+				<table class="table">
+				<tr style="background-color:#99D9EA">
+					<th>DocumentId</th>
+					<th>Name</th>
+					<th>Version</th>
+					<th>File Name</th>
+					<th>contentMimetype</th>
+					<th>contentStorageId</th>
+					<th>creationDate</th>
+					
+				</tr>
+				<tr ng-repeat="oneDoc in uploadctrl.infoList track by $index">
+					<td><a href="{{oneDoc.url}}">{{oneDoc.id}}</a></td>
+					<td>{{oneDoc.name}}</td>
+					<td>{{oneDoc.version}}</td>
+					<td>{{oneDoc.fileName}}</td>
+					<td>{{oneDoc.contentMimetype}}</td>
+					<td>{{oneDoc.contentStorageId}}</td>
+					<td>{{oneDoc.creationDate}}</td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+		</table>
+			
+			
+	</div> <!-- end controler -->
+	</div>
+
+
+</div>
+
+
+
+<!-- Third party dependencies -->
+
+<script src="pageResource?page=custompage_testupload&location=3rd-party/jquery.min.js"></script>
+
+<script src="pageResource?page=custompage_testupload&location=3rd-party/angular.min.js"></script>
+
+<script src="pageResource?page=custompage_testupload&location=3rd-party/angular-resource.min.js"></script>
+<script src="pageResource?page=custompage_testupload&location=3rd-party/angular-cookies.min.js"></script>
+
+<script src="pageResource?page=custompage_testupload&location=3rd-party/bootstrap/js/bootstrap.min.js"></script>
+<script src="pageResource?page=custompage_testupload&location=3rd-party/angular-bootstrap-tpls.min.js"></script>
+<script src="pageResource?page=custompage_testupload&location=3rd-party/angular-file-upload.js"></script>
+<script src="pageResource?page=custompage_testupload&location=3rd-party/ng-google-chart.js"></script>
+<script src="pageResource?page=custompage_testupload&location=3rd-party/ng-upload-0.5.16.min.js"></script>
+
+
+
+<!-- Application dependencies -->
+<script src="pageResource?page=custompage_testupload&location=uploadmonitor.js"></script>
+
+</body>
+</html>
